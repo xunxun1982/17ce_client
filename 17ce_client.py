@@ -4,6 +4,7 @@ import time
 import json
 import uuid
 import pyping
+import random
 import pycurl
 import base64
 from StringIO import StringIO
@@ -53,6 +54,7 @@ class CeClientProtocol(WebSocketClientProtocol):
         })
 
     def onClose(self, wasClean, code, reason):
+        print "Disconnected"
         pass
 
     def onMessage(self, payload, isBinary):
@@ -258,15 +260,12 @@ class CeClientProtocol(WebSocketClientProtocol):
 if __name__ == '__main__':
     ts = str(int(time.time()))
     md5 = hashlib.md5()
-    key = StringIO()
-    c = pycurl.Curl()
-    c.setopt(c.URL, "http://7xr2cg.com1.z0.glb.clouddn.com/key.txt")
-    c.setopt(c.WRITEDATA, key)
-    c.perform()
-    md5.update(ts + key.getvalue())
+    r = random.Random()
+    r = str(r.randint(0, int(time.time())))
+    key = r + "8e2d642abac4bfbZxETNk0DL1EjN3RWC" + ts
+    md5.update(key[::-1])
     key = md5.hexdigest()
-
-    factory = WebSocketClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s" % (ts, key))
+    factory = WebSocketClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s&r=%s" % (ts, key, r))
     factory.protocol = CeClientProtocol
     connectWS(factory)
 
