@@ -7,7 +7,7 @@ sudo apt-get install python2.7 python2.7-dev python-pip
 ```
 安装完毕后, 安装客户端所需依赖模块
 ```
-pip install twisted autobahn pycurl pying
+pip install twisted autobahn pycurl pyping
 ```
 ## Windows
 如未安装过Python 2.7，上Python官网下载2.7版本安装，完成后安装VC编译器
@@ -15,7 +15,7 @@ pip install twisted autobahn pycurl pying
 
 全部完成后假定你安装到 C:\Python27，那么在命令提示符(注意管理员权限)中执行
 ```
-C:\Python27\Scripts\pip.exe install twisted autobahn pycurl pying
+C:\Python27\Scripts\pip.exe install twisted autobahn pycurl pyping
 ```
 
 # 设置方法
