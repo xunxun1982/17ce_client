@@ -50,7 +50,8 @@ class CeClientProtocol(WebSocketClientProtocol):
             "DnsIp": self.DNSIP,
             "LocalIp": self.LOCALIP,
             "UUID": self.USERNAME + self.UUID,
-            "Username": self.USERNAME
+            "Username": self.USERNAME,
+            "Version": "3.0.10"
         })
 
     def onClose(self, wasClean, code, reason):
