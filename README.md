@@ -3,7 +3,7 @@
 如未安装过Python 2.7, 执行以下命令安装
 ```
 sudo apt-get update
-sudo apt-get install python2.7 python2.7-dev python-pip
+sudo apt-get install python2.7 python2.7-dev python-pip libcurl4-openssl-dev
 ```
 安装完毕后, 安装客户端所需依赖模块
 ```
