@@ -266,7 +266,8 @@ if __name__ == '__main__':
     key = r + "8e2d642abac4bfbZxETNk0DL1EjN3RWC" + ts
     md5.update(key[::-1])
     key = md5.hexdigest()
-    factory = WebSocketClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s&r=%s" % (ts, key, r))
+    headers = {'Origin': 'admin.17ce.com'}
+    factory = WebSocketClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s&r=%s" % (ts, key, r), headers=headers, useragent="")
     factory.protocol = CeClientProtocol
     connectWS(factory)
 
