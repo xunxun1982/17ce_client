@@ -1,0 +1,21 @@
+{
+	"version": "3.0.10",
+	"devices": [
+		{
+			"username": "yiqice@17ce.com",
+			"dev_uuid": "1234567890abcdef",
+			"lan_ip": "192.168.1.1",
+			"dns_ip": "114.114.114.114",
+			"nickname": "Beijing-Telecom"
+		},
+		{
+			"username": "yiqice@17ce.com",
+			"lan_ip": "192.168.1.1",
+			"dns_ip": "114.114.114.114",
+			"nickname": "Beijing-Unicom"
+		},
+		{
+			"username": "yiqice@17ce.com"
+		}
+	]
+}
