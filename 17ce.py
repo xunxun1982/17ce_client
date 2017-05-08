@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import subprocess
+from time import time, sleep
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -31,6 +32,9 @@ def signal_handler(signal, frame):
 
 
 if __name__ == '__main__':
+    print('Press Ctrl+C to terminal Client')
+    signal.signal(signal.SIGINT, signal_handler)
+    
     for CeDev in CeConfig["devices"]:
         try:
             CeDev["username"]
@@ -65,9 +69,8 @@ if __name__ == '__main__':
         ]
         SubProc = subprocess.Popen(['python', os.path.dirname(os.path.abspath(__file__)) + '/CeCore.py'] + sys.argv)
         SubProcList.append(SubProc.pid)
-
-    print('Press Ctrl+C to terminal Client')
-    signal.signal(signal.SIGINT, signal_handler)
-
+        sleep(10)
+        
     while True:
-        pass
+        sleep(600)
+        
