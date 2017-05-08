@@ -19,7 +19,11 @@ from autobahn.twisted.websocket import WebSocketClientFactory, \
 try:
     CeVersion = sys.argv[7]
 except:
-    CeConfig = "3.0.10"
+    CeVersion = "3.0.10"
+try:
+    CeProxy = sys.argv[8]
+except:
+    CeProxy = ""
 
 class CeClientProtocol(WebSocketClientProtocol):
     def __init__(self):
@@ -274,6 +278,7 @@ class CeClientProtocol(WebSocketClientProtocol):
 
 
 def createNewCeClient():
+    global CeProxy
     ts = str(int(time.time()))
     md5 = hashlib.md5()
     r = random.Random()
@@ -286,6 +291,10 @@ def createNewCeClient():
     factory.protocol = CeClientProtocol
     factory.origin = "admin.17ce.com"
     factory.useragent = ""
+    if CeProxy == "":
+        factory.proxy = None
+    else:
+        factory.proxy = {'host': CeProxy.split(':')[0], 'port': int(CeProxy.split(':')[1])}
     connectWS(factory)
     
     reactor.run()

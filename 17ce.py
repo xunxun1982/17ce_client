@@ -57,6 +57,10 @@ if __name__ == '__main__':
             CeDev["nickname"]
         except:
             CeDev["nickname"] = ""
+        try:
+            CeDev["proxy"]
+        except:
+            CeDev["proxy"] = ""
             
         sys.argv = [
             '17ce_load_internal', 
@@ -65,7 +69,8 @@ if __name__ == '__main__':
             CeDev["lan_ip"], 
             CeDev["dns_ip"], 
             CeDev["nickname"], 
-            CeConfig["version"]
+            CeConfig["version"],
+            CeDev["proxy"]
         ]
         SubProc = subprocess.Popen(['python', os.path.dirname(os.path.abspath(__file__)) + '/CeCore.py'] + sys.argv)
         SubProcList.append(SubProc.pid)
