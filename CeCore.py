@@ -110,7 +110,7 @@ class CeClientProtocol(WebSocketClientProtocol):
             print "[" + self.NICKNAME + "] Logged in", "UserId:", self.USERID, "NodeId:", self.NODEID
             # Start Ping/Pong
             pingpongservice = task.LoopingCall(self.sendPing)
-            pingpongservice.start(1)
+            pingpongservice.start(30)
             # Start GetTask
             gettaskservice = task.LoopingCall(self.getTask)
             gettaskservice.start(30)
