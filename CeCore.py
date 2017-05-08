@@ -12,6 +12,7 @@ import base64
 from StringIO import StringIO
 
 from twisted.internet import reactor, task, threads
+from twisted.internet.protocol import ReconnectingClientFactory
 from autobahn.twisted.websocket import WebSocketClientFactory, \
     WebSocketClientProtocol, \
     connectWS
@@ -276,6 +277,17 @@ class CeClientProtocol(WebSocketClientProtocol):
         c.close()
 
 
+class CeClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
+    protocol = CeClientProtocol
+
+    def clientConnectionFailed(self, connector, reason):
+        print "[" + sys.argv[6] + "] Client connection failed .. retrying .."
+        self.retry(connector)
+
+    def clientConnectionLost(self, connector, reason):
+        print "[" + sys.argv[6] + "] Client connection lost .. retrying .."
+        self.retry(connector)
+
 
 def createNewCeClient():
     global CeProxy
@@ -287,7 +299,7 @@ def createNewCeClient():
     md5.update(key[::-1])
     key = md5.hexdigest()
     
-    factory = WebSocketClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s&r=%s" % (ts, key, r))
+    factory = CeClientFactory("ws://admin.17ce.com:9002/router_manage?ts=%s&key=%s&r=%s" % (ts, key, r))
     factory.protocol = CeClientProtocol
     factory.origin = "admin.17ce.com"
     factory.useragent = ""

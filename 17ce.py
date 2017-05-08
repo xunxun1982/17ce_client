@@ -27,7 +27,12 @@ def signal_handler(signal, frame):
     print "\nYou pressed Ctrl+C! 17ce Client Exited"
     
     for SubProc in SubProcList:
-        os.kill(SubProc, 9)
+        try:
+            os.kill(SubProc, 9)
+            os.kill(SubProc, 15)
+            os.kill(SubProc, 17)
+        except:
+            pass
     sys.exit(0)
 
 
@@ -35,6 +40,7 @@ if __name__ == '__main__':
     print('Press Ctrl+C to terminal Client')
     signal.signal(signal.SIGINT, signal_handler)
     
+    CeLoadIndex = 0
     for CeDev in CeConfig["devices"]:
         try:
             CeDev["username"]
@@ -56,12 +62,13 @@ if __name__ == '__main__':
         try:
             CeDev["nickname"]
         except:
-            CeDev["nickname"] = ""
+            CeDev["nickname"] = "DEVICE-" + str(CeLoadIndex+1)
         try:
             CeDev["proxy"]
         except:
             CeDev["proxy"] = ""
-            
+        CeLoadIndex += 1
+        
         sys.argv = [
             '17ce_load_internal', 
             CeDev["username"], 
