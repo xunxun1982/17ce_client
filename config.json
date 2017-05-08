@@ -6,13 +6,18 @@
 			"dev_uuid": "1234567890abcdef",
 			"lan_ip": "192.168.1.1",
 			"dns_ip": "114.114.114.114",
-			"nickname": "Beijing-Telecom"
+			"proxy": "yoursocks.proxy.com:1080",
+			"nickname": "Fully_Example"
 		},
 		{
 			"username": "yiqice@17ce.com",
 			"lan_ip": "192.168.1.1",
 			"dns_ip": "114.114.114.114",
-			"nickname": "Beijing-Unicom"
+			"nickname": "Only_UserName_is_Required"
+		},
+		{
+			"username": "yiqice@17ce.com",
+			"nickname": "Mini_Example"
 		},
 		{
 			"username": "yiqice@17ce.com"
