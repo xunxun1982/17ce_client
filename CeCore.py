@@ -18,6 +18,10 @@ from autobahn.twisted.websocket import WebSocketClientFactory, \
     connectWS
 
 try:
+    CeNickName = sys.argv[6]
+except:
+    CeNickName = "Unknown"
+try:
     CeVersion = sys.argv[7]
 except:
     CeVersion = "3.0.10"
@@ -28,7 +32,6 @@ except:
 
 class CeClientProtocol(WebSocketClientProtocol):
     def __init__(self):
-        global CeConfig, CeLoadIndex
         self.handlers = {
             "LoginRt": self.onLoginRt,
             "Pong": self.onPong_,
@@ -39,7 +42,6 @@ class CeClientProtocol(WebSocketClientProtocol):
         self.UUID = sys.argv[3]
         self.LOCALIP = sys.argv[4]
         self.DNSIP = sys.argv[5]
-        self.NICKNAME = sys.argv[6]
         self.USERID = 0
         self.NODEID = 0
         self.MONITORRESULT = []
@@ -57,8 +59,7 @@ class CeClientProtocol(WebSocketClientProtocol):
         return WebSocketClientProtocol.sendMessage(self, payload, isBinary, fragmentSize, sync, doNotCompress)
 
     def onOpen(self):
-        global CeVersion
-        print "Connected"
+        print "[" + CeNickName + "] Connected"
         self.sendMessage({
             "Act": "Login",
             "DnsIp": self.DNSIP,
@@ -69,20 +70,20 @@ class CeClientProtocol(WebSocketClientProtocol):
         })
 
     def onClose(self, wasClean, code, reason):
-        print "[" + self.NICKNAME + "] Disconnected"
+        print "[" + CeNickName + "] Disconnected"
         pass
 
     def onMessage(self, payload, isBinary):
         if isBinary:
-            print "[" + self.NICKNAME + "] Binary data not support"
+            print "[" + CeNickName + "] Binary data not support"
         else:
             data = json.loads(payload.decode('utf8'))
             act = data["Act"]
             if act in self.handlers:
                 self.handlers[act](data)
             else:
-                print "[" + self.NICKNAME + "] Unknown Act:", act
-                print "[" + self.NICKNAME + "] Unknown Act Data:", data
+                print "[" + CeNickName + "] Unknown Act:", act
+                print "[" + CeNickName + "] Unknown Act Data:", data
 
     def sendPing(self):
         self.sendMessage({"Act": "Ping"})
@@ -91,23 +92,21 @@ class CeClientProtocol(WebSocketClientProtocol):
         self.sendMessage({"Act": "GetTask", "UserId": self.USERID, "NodeId": self.NODEID})
 
     def monitorResult(self):
-        print "[" + self.NICKNAME + "] Submitting Task: ", len(self.MONITORRESULT)
         if len(self.MONITORRESULT) == 0:
             return
+        print "[" + CeNickName + "] Submitting Task: ", len(self.MONITORRESULT)
         self.sendMessage({"Act": "MonitorResult", "UserId": self.USERID, "NodeId": self.NODEID,
                           "TaskType": "Cycle",
                           "MonitorResult": self.MONITORRESULT
                           })
         self.MONITORRESULT = []
-        print "[" + self.NICKNAME + "] Req Task: ", self.REQTASK, "Finished Task:", self.FINISHTASK
+        print "[" + CeNickName + "] Req Task: ", self.REQTASK, "Finished Task:", self.FINISHTASK
 
     def onLoginRt(self, data):
         try:
             self.USERID = data["UserId"]
             self.NODEID = data["NodeId"]
-            if self.NICKNAME == "":
-                self.NICKNAME = "NODE-" + str(data["NodeId"])
-            print "[" + self.NICKNAME + "] Logged in", "UserId:", self.USERID, "NodeId:", self.NODEID
+            print "[" + CeNickName + "] Logged in", "UserId:", self.USERID, "NodeId:", self.NODEID
             # Start Ping/Pong
             pingpongservice = task.LoopingCall(self.sendPing)
             pingpongservice.start(30)
@@ -129,7 +128,7 @@ class CeClientProtocol(WebSocketClientProtocol):
             tasklist = data["TaskList"]
             for task in tasklist:
                 taskid = task["TaskId"]
-                print "[" + self.NICKNAME + "] New TaskId:", taskid, "TestType", task["TestType"], "Host", task["Host"]
+                print "[" + CeNickName + "] New TaskId:", taskid, "TestType", task["TestType"], "Host", task["Host"]
                 self.REQTASK += 1
                 if task["TestType"] == "PING":
                     d = threads.deferToThread(self.doPingAsyncTask, task)
@@ -138,19 +137,19 @@ class CeClientProtocol(WebSocketClientProtocol):
                     d = threads.deferToThread(self.doHttpAsyncTask, task)
                     d.addCallback(self.doHttpAsyncTaskResult)
                 else:
-                    print "[" + self.NICKNAME + "] Unknown TestType:", task["TestType"]
+                    print "[" + CeNickName + "] Unknown TestType:", task["TestType"]
 
         else:
-            print "[" + self.NICKNAME + "] Unknown TaskType:", tasktype
+            print "[" + CeNickName + "] Unknown TaskType:", tasktype
 
     def doPingAsyncTask(self, task):
         host = task["Host"]
         try:
             p = pyping.ping(host, count=task["PingCount"])
-            print "[" + self.NICKNAME + "] Ping..." + host
+            print "[" + CeNickName + "] Ping..." + host
             return [True, task, p.avg_rtt, p.min_rtt, p.max_rtt, p.packet_lost, p.destination_ip]
         except:
-            print "[" + self.NICKNAME + "] Ping..." + host + "...Err"
+            print "[" + CeNickName + "] Ping..." + host + "...Err"
             return [False, task]
 
     def doPingAsyncTaskResult(self, result):
@@ -219,12 +218,12 @@ class CeClientProtocol(WebSocketClientProtocol):
             c.perform()
         except Exception as e:
             if e != 42:
-                print "[" + self.NICKNAME + "] Http..." + url + "...Err"
+                print "[" + CeNickName + "] Http..." + url + "...Err"
                 return [False, task, c]
         header = header.getvalue()
         body = body.getvalue()
         body = body[:task["MaxDown"]]
-        print "[" + self.NICKNAME + "] Http..." + url
+        print "[" + CeNickName + "] Http..." + url
         return [True, task, c, header, body]
 
     def doHttpAsyncTaskResult(self, result):
@@ -279,18 +278,20 @@ class CeClientProtocol(WebSocketClientProtocol):
 
 class CeClientFactory(WebSocketClientFactory, ReconnectingClientFactory):
     protocol = CeClientProtocol
+    
+    maxDelay = 30
+    #maxRetries = 5
 
     def clientConnectionFailed(self, connector, reason):
-        print "[" + sys.argv[6] + "] Client connection failed .. retrying .."
-        self.retry(connector)
+        print "[" + CeNickName + "] *** Connection Failed .. retrying .. ***"
+        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
     def clientConnectionLost(self, connector, reason):
-        print "[" + sys.argv[6] + "] Client connection lost .. retrying .."
-        self.retry(connector)
+        print "[" + CeNickName + "] *** Connection Lost .. retrying .. ***"
+        ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
 
 def createNewCeClient():
-    global CeProxy
     ts = str(int(time.time()))
     md5 = hashlib.md5()
     r = random.Random()
@@ -314,11 +315,10 @@ def createNewCeClient():
 
 if __name__ == '__main__':
     try:
-        if sys.argv[1] != "17ce_load_internal":
-            print "Error: Please load by parent process!"
-            sys.exit(-1)
+        if sys.argv[1] == "17ce_load_internal":
+            createNewCeClient()
     except:
-        print "Error: Please load by parent process!"
-        sys.exit(-1)
+        pass
     
-    createNewCeClient()
+    print "Error: Please load by parent process!"
+    sys.exit(-1)
