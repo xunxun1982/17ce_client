@@ -3,6 +3,7 @@ import sys
 import os
 import hashlib
 import time
+import datetime
 import json
 import uuid
 import pyping
@@ -100,7 +101,7 @@ class CeClientProtocol(WebSocketClientProtocol):
                           "MonitorResult": self.MONITORRESULT
                           })
         self.MONITORRESULT = []
-        print "[" + CeNickName + "] Req Task: ", self.REQTASK, "Finished Task:", self.FINISHTASK
+        print "[" + CeNickName + "] Req Task: ", self.REQTASK, "Finished Task:", self.FINISHTASK, "Time:", str(datetime.datetime.now())
 
     def onLoginRt(self, data):
         try:
