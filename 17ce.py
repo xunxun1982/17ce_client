@@ -40,6 +40,14 @@ if __name__ == '__main__':
     print('Press Ctrl+C to terminal Client')
     signal.signal(signal.SIGINT, signal_handler)
     
+    try:
+        if sys.argv[1] == "proxytest":
+            subprocess.call(['python', os.path.dirname(os.path.abspath(__file__)) + '/proxy/proxy.py', 'update'])
+            subprocess.call(['python', os.path.dirname(os.path.abspath(__file__)) + '/proxy/proxy.py', 'test'])
+            sys.exit(0)
+    except Exception, e:
+        pass
+    
     CeLoadIndex = 0
     for CeDev in CeConfig["devices"]:
         try:
