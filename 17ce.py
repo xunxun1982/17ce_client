@@ -35,11 +35,8 @@ def signal_handler(signal, frame):
             pass
     sys.exit(0)
 
-
-if __name__ == '__main__':
-    print('Press Ctrl+C to terminal Client')
-    signal.signal(signal.SIGINT, signal_handler)
-    
+def start_newtask():
+    global SubProcList
     try:
         if sys.argv[1] == "proxytest":
             subprocess.call(['python', os.path.dirname(os.path.abspath(__file__)) + '/proxy/proxy.py', 'update'])
@@ -89,8 +86,41 @@ if __name__ == '__main__':
         ]
         SubProc = subprocess.Popen(['python', os.path.dirname(os.path.abspath(__file__)) + '/CeCore.py'] + sys.argv)
         SubProcList.append(SubProc.pid)
-        sleep(10)
-        
+        sleep(30)
+
+if __name__ == '__main__':
+    print('Press Ctrl+C to terminal Client')
+    signal.signal(signal.SIGINT, signal_handler)
+    
+    start_newtask() # start new threading
+    
+    UpTime = 0
     while True:
-        sleep(600)
+        MemFree = os.popen("free | grep Mem | awk '{print ($2-$4-$6-$7)/$2 * 100.0}'").read() # get memory usage
+        if UpTime >= 3600 or int(float(MemFree)) >= 80: # if over 1 hour or memory leak
+            # kill old process
+            for SubProc in SubProcList:
+                try:
+                    os.kill(SubProc, 9)
+                    os.kill(SubProc, 15)
+                    os.kill(SubProc, 17)
+                except:
+                    pass
+            
+            # output information
+            print "************"
+            print('[SYSTEM] ** timeout restart threading to protect memory leak **')
+            print "[SYSTEM]" ,"Uptime(second):", UpTime, "Memory Usage(%):" ,float(MemFree)
+            print "************"
+            # reset var and restart threading
+            SubProcList = []
+            UpTime = 0
+            # restart new threading
+            sleep(10)
+            start_newtask()
+            
+        
+        # timer add
+        UpTime += 1
+        sleep(1)
         
