@@ -43,14 +43,10 @@ def getProxy():
         print 'Error: proxy list update failed.'
 
 
-def testProxy():
-    while True:
-        lock.acquire()
-        line = inFile.readline().strip()
-        lock.release()
-        if len(line) == 0: break
-        protocol, proxy, alive = line.split('=')
-        alive = alive.decode('utf-8').encode('gbk')
+def doWsPing(proxy):
+    count = 3
+    succ = 0
+    for _ in range(0,count):
         try:
             options = {}
             p_host, p_port = proxy.split(':')
@@ -62,21 +58,35 @@ def testProxy():
             result = ws.recv()
             ws.close()
             if result.find(u'Pong') > 0:
-                lock.acquire()
-                print 'add proxy', proxy, 'type:', protocol, 'alive:', alive
-                outFile.write(proxy + ',' + protocol + ',' + alive + '\n')
-                lock.release()
-            else:
-                print '*** ignore', proxy
+                succ += 1
         except Exception, e:
             pass
+    if succ == count:
+        return True
+    else:
+        return False
+
+def testProxy():
+    while True:
+        lock.acquire()
+        line = inFile.readline().strip()
+        lock.release()
+        if len(line) == 0: break
+        protocol, proxy, alive = line.split('=')
+        if doWsPing(proxy):
+            lock.acquire()
+            print 'add proxy', proxy, 'type:', protocol, 'alive:', alive
+            outFile.write(proxy + ',' + protocol + ',' + alive + '\n')
+            lock.release()
+        else:
+            print '*** ignore', proxy
 
 
 def startTest():
     global inFile, outFile
     try:
         inFile = open(os.path.dirname(os.path.abspath(__file__)) + '/proxy.list.txt', 'r')
-        outFile = open(os.path.dirname(os.path.abspath(__file__)) + '/available.csv', 'w')
+        outFile = open(os.path.dirname(os.path.abspath(__file__)) + '/available.txt', 'w')
         all_thread = []
         outFile.write('proxy_address,protocol,alive_time\n')
         for i in range(50):
